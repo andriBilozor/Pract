@@ -1,7 +1,5 @@
-# logic.py
 import random
 import PySimpleGUI as sg
-import data
 
 def generate_random_number(start, end):
     return random.randint(start, end)
@@ -13,7 +11,7 @@ def guess_birthday_layout():
         [sg.Text("Кінцевий день (1-31):"), sg.InputText(key='end_day')],
         [sg.Text("Початковий місяць (1-12):"), sg.InputText(key='start_month')],
         [sg.Text("Кінцевий місяць (1-12):"), sg.InputText(key='end_month')],
-        [sg.Button('Почати гру')],
+        [sg.Button('Почати гру'), sg.Button('Вийти')],
     ]
     return layout
 
@@ -24,7 +22,7 @@ def guess_birthday():
     while True:
         event, values = window.read()
 
-        if event == sg.WIN_CLOSED:
+        if event == sg.WIN_CLOSED or event == 'Вийти':
             break
 
         if event == 'Почати гру':
@@ -57,8 +55,26 @@ def guess_birthday():
                         sg.popup("Ура! Я вгадав!")
                     else:
                         sg.popup("Шкода, спробуймо ще раз.")
-                    break
-                elif event_guess == 'Ні':
-                 window_guess.close()
+                    
+                    restart_layout = [
+                        [sg.Text("Бажаєте спробувати ще раз?")],
+                        [sg.Button('Так'), sg.Button('Вийти')],
+                    ]
+                    
+                    restart_window = sg.Window('Продовжити?', restart_layout)
+                    restart_event, _ = restart_window.read()
+                    
+                    if restart_event == 'Так':
+                        restart_window.close()
+                        break
+                    else:
+                        restart_window.close()
+                        window.close()
+                        return
 
-    window.close()   
+                elif event_guess == 'Ні':
+                    window_guess.close()
+
+    window.close()
+
+guess_birthday()
